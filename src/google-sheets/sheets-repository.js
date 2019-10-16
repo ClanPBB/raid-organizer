@@ -32,10 +32,16 @@ export class SheetsRepository {
   }
 
   setValueInputOption (valueInputOption) {
+    if (!SHEETS_VALUE_INPUT_OPTIONS.hasOwnProperty(valueInputOption)) {
+      return
+    }
     this.valueInputOption = valueInputOption
   }
 
   setMajorDimension (majorDimension) {
+    if (!SHEETS_MAJOR_DIMENSIONS.hasOwnProperty(majorDimension)) {
+      return
+    }
     this.majorDimension = majorDimension
   }
 
