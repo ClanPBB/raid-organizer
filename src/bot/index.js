@@ -1,1 +1,1 @@
-export {PbbBot} from "./bot"
+export {PbbBot} from './bot'
