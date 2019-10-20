@@ -23,5 +23,7 @@ jobs:
       - cat encoded-road-225221-8b912c6be601.json | docker login -u _json_key --password-stdin https://eu.gcr.io
       - docker build -t pbb-ro --build-arg ARG_LANGUAGE={$LANGUAGE} --build-arg ARG_PBB_BOT_NAME={$PBB_BOT_NAME} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_PBB_BOT_TOKEN={$PBB_BOT_TOKEN} --build-arg ARG_SHEETS_CLIENT_ID={$SHEETS_CLIENT_ID} --build-arg ARG_SHEETS_CLIENT_SECRET={$SHEETS_CLIENT_SECRET} --build-arg ARG_SHEETS_REDIRECT_URI={$SHEETS_REDIRECT_URI} --build-arg ARG_SHEETS_REFRESH_TOKEN={$SHEETS_REFRESH_TOKEN} --build-arg ARG_SHEET_API_KEY={$SHEET_API_KEY} --build-arg ARG_SHEET_ACCESS_TOKEN={$SHEET_ACCESS_TOKEN} --build-arg ARG_SHEET_ID={$SHEET_ID} .
       - docker images
+      - docker run pbb-ro > CONTAINER_ID
+      - docker exec `cat CONTAINER_ID` npm run test
       - docker tag pbb-ro eu.gcr.io/$DOCKER_USERNAME/pbb-ro:$TRAVIS_BRANCH
       - docker push eu.gcr.io/$DOCKER_USERNAME/pbb-ro:$TRAVIS_BRANCH
