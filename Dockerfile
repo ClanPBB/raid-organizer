@@ -35,4 +35,6 @@ RUN mkdir -p /usr/app/logs \
     && npm install \
     && npm run build
 
-CMD npm run serve
+ENTRYPOINT ["npm", "run"]
+
+CMD ["serve"]
