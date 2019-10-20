@@ -1,3 +1,29 @@
+dist: bionic
+
 language: node_js
 node_js:
   - 10.16.0
+
+services:
+  - docker
+
+global:
+  - secure: "EsUTEvs+vpeiKKcGsRjd1fLM+teIqfiwgQel1zME7VLFa25ZnX5n8KyYua30KNPqGcCnCqEQbY1dd/dfNt8tQYaiDSxDSncsWXx9HJ9e81lSzOd6kXkYwgWokm7Nj48qVFogwsPOn9ZjgXsBh8cS5Bn1QOek1qVWCiWoDHT6YGN9uNhl56cvqhF71uGDi1gDHA2EcTnMq4KnNnQ+RSnKxINC0Ot3PJuRsqFDrzecM8pLseMHQ2HxJjt49Avc1+7FdHsQyiN0K0qG7kVz+xIT52gTwhjMzHSqn5TyZbiBt+3ujY6JnIj5peOaaxTd4V4CENAseZzSB5xofeMl8VxXTWw2YoKfQ+FwyjOeMKphMYP5nrKw7N6/01CuoRmUZ6qWMHg/Ja10eYxlmLdOsgpIX7xzwS8zOKdu99ANnmq24W2fgHW5jgEBlD5zV1U0jc1hhkGmYDfzyza2M6LJY56c/qiqqo4b7x6jARBqUbu39fUzg9ypZDeA254RcCAzJvHJGnF6LSLdDL6V0ps8hObQeNaS3jpUYzf6jvMe4HeCIcal8S567IlF7mMTFZ1boRTbvBenI0BMM8C/Ol8Wsj+ukFDXLUcpKxy8o6c405Bwvx4qLBdt9VUx+6WLLNpeEwJibqrJ0Nk+/+3Gzyo/eKMJeG19qR6N/V5FdOYFx767LgQ="
+
+branches:
+  only:
+  - /^v\d+\.\d+\.\d+(-\S*)?$/
+  - develop
+
+jobs:
+  include:
+    - stage: prepare environment
+      script:
+      - openssl aes-256-cbc -K $encrypted_545cee4f620e_key -iv $encrypted_545cee4f620e_iv -in gcr.json.enc -out gcr.json -d
+      - docker login -u _json_key -p "$gcr.json" https://gcr.io
+    - stage: build docker image
+      script:
+      - docker build -t pbb-ro .
+      - docker images
+      - docker tag pbb-ro $DOCKER_USERNAME/pbb-ro:$TRAVIS_BRANCH
+      - docker push $DOCKER_USERNAME/pbb-ro:$TRAVIS_BRANCH
