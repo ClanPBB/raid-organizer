@@ -15,13 +15,25 @@ branches:
   - /^v\d+\.\d+\.\d+(-\S*)?$/
   - develop
 
+stages:
+  - build docker image
+  - name: deploy to dev
+    if: branch = develop
+
 jobs:
   include:
     - stage: build docker image
       script:
-      - openssl aes-256-cbc -K $encrypted_c1db0241653d_key -iv $encrypted_c1db0241653d_iv -in encoded-road-225221-8b912c6be601.json.enc -out encoded-road-225221-8b912c6be601.json -d
-      - cat encoded-road-225221-8b912c6be601.json | docker login -u _json_key --password-stdin https://eu.gcr.io
-      - docker build -t pbb-ro --build-arg ARG_LANGUAGE={$LANGUAGE} --build-arg ARG_PBB_BOT_NAME={$PBB_BOT_NAME} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_PBB_BOT_TOKEN={$PBB_BOT_TOKEN} --build-arg ARG_SHEETS_CLIENT_ID={$SHEETS_CLIENT_ID} --build-arg ARG_SHEETS_CLIENT_SECRET={$SHEETS_CLIENT_SECRET} --build-arg ARG_SHEETS_REDIRECT_URI={$SHEETS_REDIRECT_URI} --build-arg ARG_SHEETS_REFRESH_TOKEN={$SHEETS_REFRESH_TOKEN} --build-arg ARG_SHEET_API_KEY={$SHEET_API_KEY} --build-arg ARG_SHEET_ACCESS_TOKEN={$SHEET_ACCESS_TOKEN} --build-arg ARG_SHEET_ID={$SHEET_ID} .
+      - openssl aes-256-cbc -K $encrypted_54a47577e755_key -iv $encrypted_54a47577e755_iv -in gcr.json.enc -out /tmp/secrets.tar -d
+      - tar xvf /tmp/secrets.tar -C /tmp/
+      - cat /tmp/gcr.json | docker login -u _json_key --password-stdin https://eu.gcr.io
+      - docker build -t pbb-ro --build-arg ARG_LANGUAGE={$LANGUAGE} --build-arg ARG_PBB_BOT_NAME={$PBB_BOT_NAME} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_PBB_BOT_TOKEN={$PBB_BOT_TOKEN} --build-arg ARG_SHEETS_CLIENT_ID={$SHEETS_CLIENT_ID} --build-arg ARG_SHEETS_CLIENT_SECRET={$SHEETS_CLIENT_SECRET} --build-arg ARG_SHEETS_REDIRECT_URI={$SHEETS_REDIRECT_URI} --build-arg ARG_SHEETS_REFRESH_TOKEN={$SHEETS_REFRESH_TOKEN} --build-arg ARG_SHEET_API_KEY={$SHEET_API_KEY} --build-arg ARG_SHEET_ACCESS_TOKEN={$SHEET_ACCESS_TOKEN} --build-arg ARG_SHEET_ID={$SHEET_ID} --build-arg ARG_BRANCH={$TRAVIS_BRANCH} .
       - docker run pbb-ro test
       - docker tag pbb-ro eu.gcr.io/$DOCKER_USERNAME/pbb-ro:$TRAVIS_BRANCH
       - docker push eu.gcr.io/$DOCKER_USERNAME/pbb-ro:$TRAVIS_BRANCH
+    - stage: deploy to dev
+      script:
+      - scp -i /tmp/kam-deployer.pem /tmp/gcr.json {$DEPLOY_USER}@{$DEPLOY_SERVER}:/tmp/gcr.json
+      - chmod +x ./deploy.sh
+      - scp -i /tmp/kam-deployer.pem deploy.sh {$DEPLOY_USER}@{$DEPLOY_SERVER}:/tmp/deploy.sh
+      - chmod 600 /tmp/kam-deployer.pem && ssh -o StrictHostKeyChecking=no -i /tmp/kam-deployer.pem {$DEPLOY_USER}@{$DEPLOY_SERVER} echo $SUDO_PASSWORD | sudo -S /tmp/deploy.sh $DOCKER_USERNAME develop
