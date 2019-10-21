@@ -24,7 +24,7 @@ jobs:
   include:
     - stage: build docker image
       script:
-      - openssl aes-256-cbc -K $encrypted_54a47577e755_key -iv $encrypted_54a47577e755_iv -in gcr.json.enc -out /tmp/secrets.tar -d
+      - openssl aes-256-cbc -K $encrypted_54a47577e755_key -iv $encrypted_54a47577e755_iv -in secrets.tar.enc -out /tmp/secrets.tar -d
       - tar xvf /tmp/secrets.tar -C /tmp/
       - cat /tmp/gcr.json | docker login -u _json_key --password-stdin https://eu.gcr.io
       - docker build -t pbb-ro --build-arg ARG_LANGUAGE={$LANGUAGE} --build-arg ARG_PBB_BOT_NAME={$PBB_BOT_NAME} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_RAID_BOT_CHANNEL={$RAID_BOT_CHANNEL} --build-arg ARG_PBB_BOT_TOKEN={$PBB_BOT_TOKEN} --build-arg ARG_SHEETS_CLIENT_ID={$SHEETS_CLIENT_ID} --build-arg ARG_SHEETS_CLIENT_SECRET={$SHEETS_CLIENT_SECRET} --build-arg ARG_SHEETS_REDIRECT_URI={$SHEETS_REDIRECT_URI} --build-arg ARG_SHEETS_REFRESH_TOKEN={$SHEETS_REFRESH_TOKEN} --build-arg ARG_SHEET_API_KEY={$SHEET_API_KEY} --build-arg ARG_SHEET_ACCESS_TOKEN={$SHEET_ACCESS_TOKEN} --build-arg ARG_SHEET_ID={$SHEET_ID} --build-arg ARG_BRANCH={$TRAVIS_BRANCH} .
