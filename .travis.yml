@@ -33,7 +33,10 @@ jobs:
       - docker push eu.gcr.io/$DOCKER_USERNAME/pbb-ro:$TRAVIS_BRANCH
     - stage: deploy to dev
       script:
-      - scp -i /tmp/kam-deployer.pem /tmp/gcr.json {$DEPLOY_USER}@{$DEPLOY_SERVER}:/tmp/gcr.json
+      - openssl aes-256-cbc -K $encrypted_54a47577e755_key -iv $encrypted_54a47577e755_iv -in secrets.tar.enc -out /tmp/secrets.tar -d
+      - tar xvf /tmp/secrets.tar -C /tmp/
+      - cat /tmp/gcr.json | docker login -u _json_key --password-stdin https://eu.gcr.io
+      - scp -i /tmp/kam-deployer.pem /tmp/gcr.json $DEPLOY_USER@$DEPLOY_SERVER:/tmp/gcr.json
       - chmod +x ./deploy.sh
-      - scp -i /tmp/kam-deployer.pem deploy.sh {$DEPLOY_USER}@{$DEPLOY_SERVER}:/tmp/deploy.sh
-      - chmod 600 /tmp/kam-deployer.pem && ssh -o StrictHostKeyChecking=no -i /tmp/kam-deployer.pem {$DEPLOY_USER}@{$DEPLOY_SERVER} echo $SUDO_PASSWORD | sudo -S /tmp/deploy.sh $DOCKER_USERNAME develop
+      - scp -i /tmp/kam-deployer.pem deploy.sh $DEPLOY_USER@$DEPLOY_SERVER:/tmp/deploy.sh
+      - chmod 600 /tmp/kam-deployer.pem && ssh -o StrictHostKeyChecking=no -i /tmp/kam-deployer.pem $DEPLOY_USER@$DEPLOY_SERVER echo $SUDO_PASSWORD | sudo -S /tmp/deploy.sh $DOCKER_USERNAME develop
