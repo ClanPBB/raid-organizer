@@ -40,4 +40,4 @@ jobs:
       - scp -o StrictHostKeyChecking=no -i /tmp/kam-deployer.pem /tmp/gcr.json $DEPLOY_USER@$DEPLOY_SERVER:/tmp/gcr.json
       - chmod +x ./deploy.sh
       - scp -o StrictHostKeyChecking=no -i /tmp/kam-deployer.pem deploy.sh $DEPLOY_USER@$DEPLOY_SERVER:/tmp/deploy.sh
-      - ssh -o StrictHostKeyChecking=no -i /tmp/kam-deployer.pem $DEPLOY_USER@$DEPLOY_SERVER echo $SUDO_PASSWORD | sudo -S bash /tmp/deploy.sh $DOCKER_USERNAME develop
+      - ssh -o StrictHostKeyChecking=no -i /tmp/kam-deployer.pem $DEPLOY_USER@$DEPLOY_SERVER 'echo $SUDO_PASSWORD | sudo -S bash /tmp/deploy.sh $DOCKER_USERNAME develop'
