@@ -6,6 +6,8 @@ require('dotenv').config()
 
 const Discord = require('discord.js')
 
+console.log(process.env) // DEBUG
+
 const googleAuth = new GoogleAuth(
   process.env.SHEETS_CLIENT_SECRET,
   process.env.SHEETS_CLIENT_ID,
